@@ -50,9 +50,12 @@ export function WorkerFormDialog({
     if (!name) nextErrors.fullName = "Full name is required.";
     else if (name.length > 100) nextErrors.fullName = "Name must be under 100 characters.";
 
-    if (!phoneValue) nextErrors.phone = "Phone number is required.";
-    else if (!/^[+\d][\d\s-]{5,19}$/.test(phoneValue))
-      nextErrors.phone = "Enter a valid phone number.";
+    // Updated validation: Must be exactly 9 numeric digits
+    if (!phoneValue) {
+      nextErrors.phone = "Phone number is required.";
+    } else if (!/^\d{9}$/.test(phoneValue)) {
+      nextErrors.phone = "Phone number must be exactly 9 digits.";
+    }
 
     let wage: number | null = null;
     if (wageRaw) {
@@ -104,10 +107,14 @@ export function WorkerFormDialog({
             <Input
               id="worker-phone"
               value={phone}
-              maxLength={20}
-              inputMode="tel"
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="e.g. 615123456"
+              maxLength={9}
+              inputMode="numeric"
+              onChange={(e) => {
+                // Strips all non-digit characters and limits input to 9 digits
+                const cleanInput = e.target.value.replace(/\D/g, "").slice(0, 9);
+                setPhone(cleanInput);
+              }}
+              placeholder="e.g. 614244808"
               autoComplete="off"
             />
             {errors.phone && <p className="text-xs text-destructive">{errors.phone}</p>}
